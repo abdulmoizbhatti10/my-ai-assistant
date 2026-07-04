@@ -1,40 +1,6 @@
 !pip install -q streamlit google-generativeai pyngrok
 !npm install -g localtunnel
 
-%%writefile app.py
-import streamlit as st
-import google.generativeai as genai
-
-# Apni API Key yahan paste karein
-API_KEY = "YOUR_API_KEY_HERE" 
-genai.configure(api_key=API_KEY)
-
-# Is baar sirf naam likha hai, "models/" hata diya hai
-model = genai.GenerativeModel('gemini-1.5-flash')
-
-st.title("Mera Personal AI Assistant")
-
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-
-if prompt := st.chat_input("Mujhse kuch bhi poochein..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    with st.chat_message("assistant"):
-        # Yahan try-except lagaya hai taake agar error aaye toh pata chale
-        try:
-            response = model.generate_content(prompt)
-            st.markdown(response.text)
-            st.session_state.messages.append({"role": "assistant", "content": response.text})
-        except Exception as e:
-            st.error(f"Error: {e}")
-
 # Pehle ye cell run karein (Auth Token yahan daalein)
 !pip install pyngrok
 from pyngrok import ngrok
