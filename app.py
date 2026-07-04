@@ -30,7 +30,7 @@ if prompt := st.chat_input("Mujhse kuch bhi poochein..."):
         try:
             # Nayi library ka istemal karte hue model call
             response = client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-1.5-flash',
                 contents=prompt,
             )
             st.markdown(response.text)
