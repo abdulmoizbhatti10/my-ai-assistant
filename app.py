@@ -10,7 +10,7 @@ else:
     st.error("API Key missing! Please set it in Streamlit Cloud Secrets.")
 
 # Model selection
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = model = genai.GenerativeModel('gemini-1.5-flash-latest')
 
 # Chat session state
 if "messages" not in st.session_state:
