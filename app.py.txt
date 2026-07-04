@@ -6,7 +6,7 @@ import streamlit as st
 import google.generativeai as genai
 
 # Apni API Key yahan paste karein
-API_KEY = "YOUR_API_KEY_HERE" 
+API_KEY = st.secrets["GOOGLE_API_KEY"]
 genai.configure(api_key=API_KEY)
 
 # Is baar sirf naam likha hai, "models/" hata diya hai
