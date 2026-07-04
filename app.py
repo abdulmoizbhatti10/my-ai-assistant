@@ -1,51 +1,26 @@
-!pip install -q streamlit google-generativeai pyngrok
-!npm install -g localtunnel
-
-# Pehle ye cell run karein (Auth Token yahan daalein)
-!pip install pyngrok
-from pyngrok import ngrok
-
-# Apni token yahan paste karein
-ngrok.set_auth_token("3G3FyZYMsMAL1VZ8jCt45Ol7NHY_3GCUxCXWCPNeU23k2WTbS")
-
-# App run karein
-ngrok.kill() # purani connections band karne ke liye
-public_url = ngrok.connect(8501)
-print(f"Apka AI Assistant is link par hai: {public_url}")
-!streamlit run app.py
-
-!pip install -q -U google-generativeai
-
-import google.generativeai as genai
-# Apni API Key yahan paste karein
-API_KEY = "YOUR_API_KEY_HERE"
-genai.configure(api_key=API_KEY)
-
-# Available models print karein
-for m in genai.list_models():
-    if 'generateContent' in m.supported_generation_methods:
-        print(m.name)
-
-%%writefile app.py
 import streamlit as st
-import google.generativeai as genai
-
-# Apni API Key yahan daalein
-API_KEY = "YOUR_API_KEY_HERE"
-genai.configure(api_key=API_KEY)
-
-# Yahan model ka naam badal kar gemini-2.5-flash kar diya hai
-model = genai.GenerativeModel('gemini-2.5-flash')
+from google import genai
 
 st.title("Mera Personal AI Assistant")
 
+# Secrets se API key lein
+if "GOOGLE_API_KEY" in st.secrets:
+    # Nayi library ka client initialize karein
+    client = genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
+else:
+    st.error("API Key missing! Please set it in Streamlit Cloud Secrets.")
+    st.stop()
+
+# Session state initialize karein
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Purane messages dikhayein
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+# Naya input lein
 if prompt := st.chat_input("Mujhse kuch bhi poochein..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
@@ -53,7 +28,11 @@ if prompt := st.chat_input("Mujhse kuch bhi poochein..."):
 
     with st.chat_message("assistant"):
         try:
-            response = model.generate_content(prompt)
+            # Nayi library ka istemal karte hue model call
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt,
+            )
             st.markdown(response.text)
             st.session_state.messages.append({"role": "assistant", "content": response.text})
         except Exception as e:
