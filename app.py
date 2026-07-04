@@ -1,11 +1,15 @@
+!pip install -q streamlit google-generativeai pyngrok
+!npm install -g localtunnel
+
+%%writefile app.py
 import streamlit as st
 import google.generativeai as genai
 
-# Streamlit secrets se key utha rahe hain
-api_key = st.secrets["GOOGLE_API_KEY"]
-genai.configure(api_key=api_key)
+# Apni API Key yahan paste karein
+API_KEY = "YOUR_API_KEY_HERE" 
+genai.configure(api_key=API_KEY)
 
-# Model ka naam sahi likhein: 'gemini-1.5-flash'
+# Is baar sirf naam likha hai, "models/" hata diya hai
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 st.title("Mera Personal AI Assistant")
@@ -23,9 +27,23 @@ if prompt := st.chat_input("Mujhse kuch bhi poochein..."):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
+        # Yahan try-except lagaya hai taake agar error aaye toh pata chale
         try:
             response = model.generate_content(prompt)
             st.markdown(response.text)
             st.session_state.messages.append({"role": "assistant", "content": response.text})
         except Exception as e:
             st.error(f"Error: {e}")
+
+# Pehle ye cell run karein (Auth Token yahan daalein)
+!pip install pyngrok
+from pyngrok import ngrok
+
+# Apni token yahan paste karein
+ngrok.set_auth_token("3G3FyZYMsMAL1VZ8jCt45Ol7NHY_3GCUxCXWCPNeU23k2WTbS")
+
+# App run karein
+ngrok.kill() # purani connections band karne ke liye
+public_url = ngrok.connect(8501)
+print(f"Apka AI Assistant is link par hai: {public_url}")
+!streamlit run app.py
